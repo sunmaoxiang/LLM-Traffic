@@ -1,18 +1,43 @@
 "use client";
-import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { SearchComponentProps } from "./types";
 
-
-const SearchComponent = ( {reponsesValue,setReponsesValue }: SearchComponentProps)  => {
-
+const SearchComponent = ({
+  reponsesValue,
+  setReponsesValue,
+}: SearchComponentProps) => {
   const [searchEngine, setSearchEngine] = useState("gpt-3.5-turbo");
   const [inputValue, setInputValue] = useState("");
 
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(inputValue)
-    setReponsesValue([...reponsesValue,{userQuestion: inputValue, llmResonse: "返回结构"}]);
+    console.log(inputValue);
+    
+
+    fetch("http://172.20.58.189:5000/api/llm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({"request": inputValue}),
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        setReponsesValue([
+          ...reponsesValue,
+          { userQuestion: inputValue, llmResonse: data},
+        ]);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
     setInputValue("");
   };
 
